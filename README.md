@@ -103,4 +103,4 @@ python audio_dataset_sampler.py --variant B --augment --num_augmented 10 --class
 - `--duration`: Duration of one sample in seconds.
 - `--device_index`: Specify microphone device index.
 - `--check_devices`: check available input devices and exit.
-- `--metadata`: Produce metadata after recording on, off (default is on).
+- `--metadata`: include in command to produce metadata after recording.
