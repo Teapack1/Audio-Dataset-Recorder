@@ -104,3 +104,4 @@ python audio_dataset_sampler.py --variant B --augment --num_augmented 10 --class
 - `--device_index`: Specify microphone device index.
 - `--check_devices`: check available input devices and exit.
 - `--metadata`: include in command to produce metadata after recording.
+- `--normalize`: Scales the entire audio signal such that the loudest peak in the audio reaches the maximum possible amplitude, which is 1.0.
