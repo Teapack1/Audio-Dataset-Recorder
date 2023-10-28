@@ -1,6 +1,6 @@
 
-# Audio Dataset Recording & Augmentation Tool
-audio_dataset_sampler.py
+## Audio Dataset Recording & Augmentation Tool
+adr_sampler.py
 
 
 This Python-based utility enables efficient audio recording with options for categorization, augmentation, and metadata generation. It's tailored for collecting data for various audio-related machine learning tasks.
@@ -65,13 +65,13 @@ python audio_dataset_sampler.py --variant B --augment --num_augmented 10 --class
 
 
 
-# Oneshot Audio Recorder
-oneshot_sampler.py
+## Oneshot Audio Recorder
+os_sampler.py
 
 This is a simple Python script to record audio samples from your microphone directly from the command line. It records one or several samples in one go. The recordings are saved as `.wav` files.
 
 
-## Requirements
+### Requirements
 
 - Python
 - `sounddevice`
