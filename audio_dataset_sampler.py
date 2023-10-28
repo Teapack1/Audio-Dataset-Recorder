@@ -38,6 +38,13 @@ class AudioRecorder:
             for f in filenames:
                 file_path = os.path.join(dirpath, f)
                 self._augment_file(file_path, num_augmented, class_counts)
+                
+    def normalize(self, audio):
+        audio_max = np.max(np.abs(audio))
+        if audio_max > 0:
+            scaling_factor = 1.0 / audio_max
+            audio = audio * scaling_factor
+        return audio
 
     def _augment_file(self, audio_file, num_augmented, class_counts):  
         print(f"Augmenting {audio_file}")
@@ -85,6 +92,9 @@ class AudioRecorder:
                 sd.wait()
 
                 record = record.flatten()
+                if args.normalize:
+                    record = self.normalize(record)
+
                 filename = os.path.join(self.SAMPLES_DIR, f"{cls}_{sample}.wav")
                 sf.write(filename, record, self.SAMPLE_RATE)
                 print("Saved at: ", filename)
@@ -104,6 +114,9 @@ class AudioRecorder:
                 sd.wait()
 
                 record = record.flatten()
+                if args.normalize:
+                    record = self.normalize(record)
+
                 trimmed, index = librosa.effects.trim(record, top_db=15)
 
                 filename = os.path.join(dir, f"{cls}_{sample}.wav")
@@ -146,7 +159,8 @@ if __name__ == "__main__":
     parser.add_argument("--duration", type=int, default=1, help="Duration of one sample in seconds.")
     parser.add_argument("--device_index", type=int, default=1, help="Specify microphone device index.")
     parser.add_argument("--check_devices", action="store_true", help="Flag to check available input devices and exit.")
-    parser.add_argument("--metadata", type=str, choices=["on", "off"], default="on", help="Produce metadata after recording (default is on).")
+    parser.add_argument("--metadata", action="store_true", help="Produce metadata after recording (default is on).")
+    parser.add_argument("--normalize", action="store_true", help="Normalize audio samples to bring the loudest peak to a target level.")
 
     args = parser.parse_args()
 
@@ -167,5 +181,5 @@ if __name__ == "__main__":
     if args.augment:
         recorder.augment_samples(args.num_augmented)
 
-    if args.metadata == "on":
+    if args.metadata:
         recorder.produce_metadata()
