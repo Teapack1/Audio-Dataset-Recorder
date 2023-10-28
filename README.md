@@ -1,10 +1,10 @@
 # Audio Dataset Recording & Augmentation Tool
 
-There are two scripts. The primary one, dr_sampler.py, provides a comprehensive tool for audio dataset creation, suitable for ML tasks on platforms like HuggingFace and Pytorch. The second script, os_sampler.py, is lighter and is designed for quickly recording single or multiple samples of the same kind. Both scripts save their recordings as .wav files in the relative root directory.
+There are two scripts. The primary one, `dr_sampler.py`, provides a comprehensive tool for audio dataset creation, suitable for ML tasks on platforms like HuggingFace and Pytorch. The second script, `os_sampler.py`, is lighter and is designed for quickly recording single or multiple samples of the same kind. Both scripts save their recordings as .wav files in the relative root directory.
 
 
 ## Dataset Recorder
-dr_sampler.py
+`dr_sampler.py`
 
 
 This Python-based utility enables efficient audio recording with options for categorization, augmentation, and metadata generation. It's tailored for collecting data for various audio-related machine learning tasks.
@@ -70,7 +70,7 @@ python audio_dataset_sampler.py --variant B --augment --num_augmented 10 --class
 
 
 ## Oneshot Recorder
-os_sampler.py
+`os_sampler.py`
 
 This is a simple Python script to record audio samples from your microphone directly from the command line. It records one or several samples in one go. The recordings are saved as `.wav` files.
 
