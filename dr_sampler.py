@@ -32,6 +32,46 @@ class AudioRecorder:
 
         if not os.path.exists(self.SAMPLES_DIR):
             os.mkdir(self.SAMPLES_DIR)
+            
+    def apply_audio_editing(self, trim_pad_flag, normalize_flag):
+        # For every directory, subdir, and file found in SAMPLES_DIR
+        for dirpath, dirnames, filenames in os.walk(self.SAMPLES_DIR):
+            for f in filenames:
+                if f.endswith('.wav'):  # Ensure it's an audio file
+                    audio_file = os.path.join(dirpath, f)
+                    
+                    # Determine if we are using variant A or B
+                    if os.path.dirname(audio_file) == self.SAMPLES_DIR:  # Variant A
+                        edit_class_dir = self.SAMPLES_DIR  # Save directly to SAMPLES_DIR
+                    else:  # Variant B
+                        class_name = os.path.basename(os.path.dirname(audio_file))
+                        edit_class_dir = os.path.join(self.SAMPLES_DIR, class_name)  # Save to the subdirectory
+                    
+                    y, sr = librosa.load(audio_file, sr=None)
+                    
+                    if trim_pad_flag:
+                        y = self.trim_pad(y)
+                        
+                    if normalize_flag:
+                        y = self.normalize(y)
+                        
+                    sf.write(audio_file, y, sr)  # Overwrite the original file with edited data
+                    print(f"Processed {audio_file}")
+
+
+    def trim_pad(self, audio):
+        """Trim silence and pad audio to ensure consistent length."""
+        # Trim silence
+        trimmed, _ = librosa.effects.trim(audio, top_db=15)
+        # Pad to ensure consistent length
+        desired_length = int(self.SAMPLE_RATE * self.DURATION)
+        if len(trimmed) < desired_length:
+            padding = desired_length - len(trimmed)
+            padded_audio = np.pad(trimmed, (0, padding), 'constant')
+        else:
+            padded_audio = trimmed[:desired_length]
+        return padded_audio
+
 
     def normalize(self, audio):
         audio_max = np.max(np.abs(audio))
@@ -40,6 +80,7 @@ class AudioRecorder:
             audio = audio * scaling_factor
         return audio
 
+    
     def augment_samples(self, num_augmented):
         class_counts = {}
 
@@ -98,19 +139,43 @@ class AudioRecorder:
             sf.write(new_file, augmented, self.SAMPLE_RATE)
 
 
+    def get_highest_index(self, cls, variant):
+        """
+        Get the highest index of the already recorded samples for a given class.
+        """
+        highest_index = -1
+
+        if variant == "A":
+            path = self.SAMPLES_DIR
+            files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f)) and f.startswith(cls)]
+        elif variant == "B":
+            path = os.path.join(self.SAMPLES_DIR, cls)
+            files = [f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))]
+
+        for f in files:
+            try:
+                index = int(f.split('_')[-1].split('.')[0])  # Extracting index from the filename
+                highest_index = max(highest_index, index)
+            except ValueError:
+                continue
+
+        return highest_index
+
+
     def record_audio_variant_A(self):
         for cls in self.CLASSES:
+            highest_index = self.get_highest_index(cls, "A")
+            input(f"Press Enter to start recording for class '{cls}' ...")
             time.sleep(0.5)
 
-            for sample in range(self.SAMPLE_COUNT):
-                print(f"Recording sample no.: {sample} / {self.SAMPLE_COUNT}")
+            for sample in range(highest_index + 1, highest_index + 1 + self.SAMPLE_COUNT):
+                print(f"Recording sample '{cls}': {sample} / {highest_index + 1 + self.SAMPLE_COUNT}")
                 record = sd.rec(int(self.DURATION * self.SAMPLE_RATE), samplerate=self.SAMPLE_RATE, channels=self.CHANNELS, device=self.DEVICE_INDEX, dtype='int16')
                 sd.wait()
 
-                record = record.flatten()
-                if args.normalize:
-                    record = self.normalize(record)
-
+                if record.shape[1] > 1:
+                    record = np.mean(record, axis=1)
+                
                 filename = os.path.join(self.SAMPLES_DIR, f"{cls}_{sample}.wav")
                 sf.write(filename, record, self.SAMPLE_RATE)
                 print("Saved at: ", filename)
@@ -119,24 +184,23 @@ class AudioRecorder:
 
     def record_audio_variant_B(self):
         for cls in self.CLASSES:
+            input(f"Press Enter to start recording for class '{cls}' ...")
+    
             dir = os.path.join(self.SAMPLES_DIR, cls)
             if not os.path.exists(dir):
                 os.mkdir(dir)
             time.sleep(0.5)
 
             for sample in range(self.SAMPLE_COUNT):
-                print(f"Recording sample no.: {sample} / {self.SAMPLE_COUNT}")
+                print(f"Recording sample '{cls}': {sample} / {self.SAMPLE_COUNT}")
                 record = sd.rec(int(self.DURATION * self.SAMPLE_RATE), samplerate=self.SAMPLE_RATE, channels=self.CHANNELS, device=self.DEVICE_INDEX, dtype='int16')
                 sd.wait()
 
-                record = record.flatten()
-                if args.normalize:
-                    record = self.normalize(record)
-
-                trimmed, index = librosa.effects.trim(record, top_db=15)
+                if record.shape[1] > 1:
+                    record = np.mean(record, axis=1)
 
                 filename = os.path.join(dir, f"{cls}_{sample}.wav")
-                sf.write(filename, trimmed, self.SAMPLE_RATE)
+                sf.write(filename, record, self.SAMPLE_RATE)
                 print("Saved at: ", filename)
 
         print("Finished recording.")
@@ -189,9 +253,10 @@ class AudioRecorder:
 
 
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Record audio samples for different classes.")
-    parser.add_argument("--variant", type=str, choices=["A", "B"], help="Recording variant A save all samples in one folder. B saves samples to separate folders for each class.")
+    parser.add_argument("--method", type=str, choices=["A", "B"], help="Recording variant A save all samples in one folder. B saves samples to separate folders for each class.")
     parser.add_argument("--augment", action="store_true", help="Flag to indicate if augmentation is required")
     parser.add_argument("--num_augmented", type=int, default=25, help="Number of augmented samples from every original sample")
     parser.add_argument("--classes", nargs='+', default=None, help="Specify classes for the recordings.")
@@ -201,6 +266,8 @@ if __name__ == "__main__":
     parser.add_argument("--check_devices", action="store_true", help="Flag to check available input devices and exit.")
     parser.add_argument("--metadata", action="store_true", help="Produce metadata after recording (default is on).")
     parser.add_argument("--normalize", action="store_true", help="Normalize audio samples to bring the loudest peak to a target level.")
+    parser.add_argument("--trim_pad", action="store_true", help="Trim silence parts and pad it back with zeros to ensure consistent length.")
+
 
     args = parser.parse_args()
 
@@ -213,11 +280,14 @@ if __name__ == "__main__":
                              duration=args.duration,
                              device_index=args.device_index)
 
-    if args.variant == "A":
+    if args.method == "A":
         recorder.record_audio_variant_A()
-    elif args.variant == "B":
+    elif args.method == "B":
         recorder.record_audio_variant_B()
 
+    if args.trim_pad or args.normalize:
+        recorder.apply_audio_editing(args.trim_pad, args.normalize)
+    
     if args.augment:
         recorder.augment_samples(args.num_augmented)
 
