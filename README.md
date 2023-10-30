@@ -52,17 +52,17 @@ python audio_dataset_sampler.py --variant B --augment --num_augmented 10 --class
 ### Command Line Arguments
 
 - `--variant`: Recording variant. `A` saves all samples in one folder while `B` saves samples to separate folders for each class.
-- `--augment`: include to indicate if augmentation is required otherwise samples are not augmented.
+- `--augment`: flag, include to indicate if augmentation is required otherwise samples are not augmented.
 - `--num_augmented`: Number of augmented samples from every original sample.
-- `--classes`: Specify classes for the recordings. (eg.:--classes one two three)
+- `--classes`: Specify classes for the recordings. (eg.:`--classes one two three`)
 - `--sample_count`: Number of samples in every class.
 - `--duration`: Duration of one sample in seconds.
 - `--device_index`: Specify microphone device index.
-- `--check_devices`: check available input devices and exit.
-- `--metadata`: include in command to produce metadata after recording.
-- `--normalize`: Scales the entire audio signal such that the loudest peak in the audio reaches the maximum possible amplitude, which is 1.0.
-- `--trim_pad`: Trim silence parts and pad it back with zeros to ensure consistent length.
-- `--playback`: Flag to indicate instant playback or specify local file for playback.
+- `--check_devices`: flag, check available input devices and exit.
+- `--metadata`: flag, include in command to produce metadata after recording or produce metadata of already recorded samples.
+- `--normalize`: flag, scales the entire audio signal such that the loudest peak in the audio will become 1.0.
+- `--trim_pad`: flag, trim silence parts and pad it back with zeros.
+- `--playback`: flag, indicate instant playback or specify local file for playback.
 
 <br>
 <br>
