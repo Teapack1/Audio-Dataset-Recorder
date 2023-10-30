@@ -54,7 +54,7 @@ python audio_dataset_sampler.py --variant B --augment --num_augmented 10 --class
 - `--variant`: Recording variant. `A` saves all samples in one folder while `B` saves samples to separate folders for each class.
 - `--augment`: include to indicate if augmentation is required otherwise samples are not augmented.
 - `--num_augmented`: Number of augmented samples from every original sample.
-- `--classes`: Specify classes for the recordings. (eg.: one two three)
+- `--classes`: Specify classes for the recordings. (eg.:--classes one two three)
 - `--sample_count`: Number of samples in every class.
 - `--duration`: Duration of one sample in seconds.
 - `--device_index`: Specify microphone device index.
