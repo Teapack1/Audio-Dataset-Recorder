@@ -8,7 +8,7 @@ import numpy as np
 from pydub import AudioSegment
 import soundfile as sf
 import pandas as pd
-
+import keyboard
 
 class AudioRecorder:
     def __init__(
@@ -56,14 +56,16 @@ class AudioRecorder:
 
                     if trim_pad_flag:
                         y = self.trim_pad(y)
+                        print(f"Trimmed {audio_file}")
 
                     if normalize_flag:
                         y = self.normalize(y)
+                        print(f"Normalized {audio_file}")
 
                     sf.write(
                         audio_file, y, sr
                     )  # Overwrite the original file with edited data
-                    print(f"Processed {audio_file}")
+    
 
     def trim_pad(self, audio):
         """Trim silence and pad audio to ensure consistent length."""
@@ -193,14 +195,10 @@ class AudioRecorder:
         for cls in self.CLASSES:
             highest_index = self.get_highest_index(cls, "A")
             input(f"Press Enter to start recording for class '{cls}' ...")
-            time.sleep(0.5)
+            #time.sleep(0.5)
 
-            for sample in range(
-                highest_index + 1, highest_index + 1 + self.SAMPLE_COUNT
-            ):
-                print(
-                    f"Recording sample '{cls}': {sample} / {highest_index + 1 + self.SAMPLE_COUNT}"
-                )
+            for sample in range(highest_index + 1, highest_index + 1 + self.SAMPLE_COUNT):
+                print(f"Recording sample '{cls}': {sample-highest_index} / {self.SAMPLE_COUNT}")
                 record = sd.rec(
                     int(self.DURATION * self.SAMPLE_RATE),
                     samplerate=self.SAMPLE_RATE,
@@ -220,21 +218,23 @@ class AudioRecorder:
                 if playback:
                     self.play_sample(
                         data=record, samplerate=self.SAMPLE_RATE
-                    )  # Play back the recorded sample
+                    )  
 
         print("Finished recording.")
 
+
     def record_audio_variant_B(self, playback=False):
         for cls in self.CLASSES:
+            highest_index = self.get_highest_index(cls, "B")  # Fixed to use "B"
             input(f"Press Enter to start recording for class '{cls}' ...")
 
             dir = os.path.join(self.SAMPLES_DIR, cls)
             if not os.path.exists(dir):
                 os.mkdir(dir)
-            time.sleep(0.5)
+            #time.sleep(0.5)
 
-            for sample in range(self.SAMPLE_COUNT):
-                print(f"Recording sample '{cls}': {sample} / {self.SAMPLE_COUNT}")
+            for sample in range(highest_index + 1, highest_index + self.SAMPLE_COUNT + 1):
+                print(f"Recording sample '{cls}': {sample-highest_index} / {self.SAMPLE_COUNT}")
                 record = sd.rec(
                     int(self.DURATION * self.SAMPLE_RATE),
                     samplerate=self.SAMPLE_RATE,
@@ -252,11 +252,10 @@ class AudioRecorder:
                 print("Saved at: ", filename)
 
                 if playback:
-                    self.play_sample(
-                        data=record, samplerate=self.SAMPLE_RATE
-                    )  # Play back the recorded sample
+                    self.play_sample(data=record, samplerate=self.SAMPLE_RATE) 
 
         print("Finished recording.")
+
 
     def produce_metadata(self):
         metadata = {"filepath": [], "label": [], "class_num": []}
