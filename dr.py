@@ -7,7 +7,6 @@ import numpy as np
 from pydub import AudioSegment
 import soundfile as sf
 import pandas as pd
-from pydub import effects
 
 
 def find_mic_index(sounddevice):
@@ -197,13 +196,13 @@ class AudioRecorder:
                 audio_segment = AudioSegment.from_wav(audio_file)
                         # Decide on dB change based on current loudness
                 if audio_db < -30:  # Very quiet
-                    db_change = random.randint(2, 12)
+                    db_change = random.randint(2, 13)
                 elif audio_db < -20:  # Quiet
-                    db_change = random.randint(1, 15)
+                    db_change = random.randint(1, 10)
                 elif audio_db < -10:  # Moderate
-                    db_change = random.randint(-10, 10)
+                    db_change = random.randint(10, 10)
                 else:                    # Loud
-                    db_change = random.randint(-12, 2)
+                    db_change = random.randint(-15, 2)
                     
                 augmented_segment = audio_segment.apply_gain(db_change)
                 augmented = np.array(augmented_segment.get_array_of_samples())

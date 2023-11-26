@@ -4,9 +4,6 @@ import os
 import argparse
 import numpy as np
 
-SAMPLE_RATE = 16000
-
-
 def find_mic_index(sounddevice):
     mic_index = None
     devices = sounddevice.query_devices()
@@ -109,9 +106,9 @@ def main(args):
         current_filename = os.path.join(directory, f"{base_name}_{i+1}{ext}" if num_recordings > 1 else filename)
         if args.playback:
             play_sample(
-            data=record, samplerate=SAMPLE_RATE
+            data=record, samplerate=sample_rate
             )  
-        sf.write(current_filename, record, SAMPLE_RATE)
+        sf.write(current_filename, record, sample_rate)
         
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Record audio from the command line.")
