@@ -1,6 +1,6 @@
-# Audio Dataset Recording & Augmentation Utility
+# Audio Dataset Recording & Augmentation Tools
 
-Dataset recorder, with its primary script `dr.py`, helps to swiftly produce audio datasets, especially for machine learning applications. It's complemented by `drLite.py`, a more lightweight script for quick and easy recording of single or multiple audio samples.
+Dataset recorder, with its primary script `dr.py`, helps to swiftly produce complete audio datasets, especially for machine learning applications. It's complemented by `drLite.py`, a more lightweight script for quick and easy recording of single or multiple audio samples.
 
 Both scripts are user-friendly, saving recordings in .wav format directly to the relative root directory, ensuring easy access and management.
 
@@ -18,11 +18,12 @@ This Python-based utility enables efficient audio recording with options for cat
 - **Audio Augmentation**: Inbuilt audio augmentation features: mixing with ambient noises, pitch shifting, time stretching, syntetic noise addition and decibel adjustment. (ambient noises provided by the user).
 - **Metadata Generation**: Automates generation of metadata CSV files post-recording, with paths and labels for every audio sample.
 - **Automatic Recording**: Samples are recorded automatically after the sctipt runs, no need to press any buttons.
-- **Other Utilities**: Immediate audio playback, Peak-normalization, Trim-padding.
+- **Catches up**: In partly recorded dataset finds the last files and do not rewrite any existing files. Can also perform augmentation or metadata only, when placed next to the audio_samples folder.
+- **Other Utilities**: Immediate audio playback, Peak-normalization, Trim-padding, Device selection.
 
 ### Requirements
 
-- Python
+- Python 3.10.*
 - `sounddevice`
 - `librosa`
 - `pydub`
@@ -55,17 +56,20 @@ python dr.py --method B --classes yes no --duration 1 --num_samples 10 --metadat
 
 ### Command Line Arguments
 
-- `--method`: Recording variant. `A` saves all samples in one folder while `B` saves samples to separate folders for each class.
+- `--method`: Recording method. `A` saves all samples in one folder while `B` saves samples to separate folders for each class.
 - `--augment`: flag, include to indicate if augmentation is required otherwise samples are not augmented.
-- `--num_augmented`: Number of augmented samples from every original sample.
+- `--num_augmented`: Number of augmented samples for every original sample.
 - `--classes`: Specify classes for the recordings. (eg.:`--classes one two three`)
 - `--sample_count`: Number of samples in every class.
 - `--duration`: Duration of one sample in seconds.
-- `--treshold:` Define the amplitude threshold for starting the recording.
+- `--treshold:` Define amplitude threshold to start recording.
 - `--metadata`: flag, include in command to produce metadata after recording or produce metadata of already recorded samples.
 - `--normalize`: flag, scales the entire audio signal such that the loudest peak in the audio will become 1.0.
 - `--trim_pad`: flag, trim silence parts and pad it back with zeros.
 - `--playback`: flag, indicate instant playback or specify local file for playback.
+- `--device`: flag, Choose a specific device for recording. Lists available devices, do not include for auto-selection.
+- `--sample_rate`: Sampling Rate (16000 default).
+
 
 <br>
 <br>
@@ -94,7 +98,7 @@ pip install sounddevice soundfile numpy
 
 - Use command line arguments for customization.
 - Record audio with a specified duration.
-- Choose a specific device for recording.
+- Use immediate playback.
 - Save multiple recordings with incremental filenames.
 - Automatic recording
    
@@ -119,3 +123,6 @@ python drLite.py -f recording -d 10 -dir recordings -n 3
 - `-dev` or `--device`: Choose a specific device for recording. Use --list_devices to view available devices.
 - `--list_devices`: List available recording devices and exit.
 - `--treshold:` Define the amplitude threshold for starting the recording.
+- `--no_listening_mode:` Listens for incomming audio and records when there is input. (default is on).
+- `--playback:` Flag to indicate playback or specify a file for playback.
+- `--sample_rate:`Sampling Rate (16000 default).
