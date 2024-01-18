@@ -274,7 +274,7 @@ class AudioRecorder:
         sd.wait()
         return recording
     
-
+    """
     def record_auto(self, threshold=0.6, record_seconds=1, channels=1, rate=16000, chunk_size=128, device=0):
         def get_rms(block):
             return np.sqrt(np.mean(np.square(block)))
@@ -293,7 +293,51 @@ class AudioRecorder:
                         data, _ = stream.read(chunk_size)
                         frames.append(data)
                     return np.concatenate(frames, axis=0)
+    """            
 
+    def record_auto(self, threshold=0.6, record_seconds=1, channels=1, rate=16000, chunk_size=128, overlap_factor=0.5, device=0):
+        def get_rms(block):
+            return np.sqrt(np.mean(np.square(block)))
+        
+        # Calculate the number of samples to overlap
+        overlap_samples = int(chunk_size * overlap_factor)
+        read_size = chunk_size - overlap_samples
+
+        with sd.InputStream(channels=channels, samplerate=rate, blocksize=read_size, dtype='float32', device=device) as stream:
+            # Initialize an empty buffer for storing overlapped chunks
+            buffer = np.zeros(chunk_size, dtype='float32')
+            while True:
+                data, _ = stream.read(read_size)
+                if channels > 1:
+                    # Convert to mono by averaging the channels if stereo
+                    mono = np.mean(data, axis=1)
+                else:
+                    mono = data[:, 0]
+                
+                # Shift the existing buffer and append new data for overlap
+                buffer = np.roll(buffer, -read_size)
+                buffer[-read_size:] = mono
+
+                amplitude = get_rms(buffer)
+
+                if amplitude > threshold:
+                    print("* Recording with amplitude:", amplitude)
+                    frames = [buffer.copy()]  # Start with the current overlapped buffer
+
+                    for _ in range(1, int(rate / read_size * record_seconds)):
+                        data, _ = stream.read(read_size)
+                        if channels > 1:
+                            # Convert to mono by averaging the channels if stereo
+                            mono = np.mean(data, axis=1)
+                        else:
+                            mono = data[:, 0]
+                        
+                        # Update the buffer with new data
+                        buffer = np.roll(buffer, -read_size)
+                        buffer[-read_size:] = mono
+
+                        frames.append(buffer.copy())
+                    return np.concatenate(frames, axis=0)
 
 
     def record_audio_variant_A(self, playback=False, no_listening_mode=False):
