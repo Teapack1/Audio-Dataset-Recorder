@@ -277,7 +277,9 @@ class AudioRecorder:
     """
     def record_auto(self, threshold=0.6, record_seconds=1, channels=1, rate=16000, chunk_size=128, device=0):
         def get_rms(block):
-            return np.sqrt(np.mean(np.square(block)))
+            #return np.sqrt(np.mean(np.square(block)))
+        # return peak amplitude
+            return np.max(np.abs(block))
 
         with sd.InputStream(channels=channels, samplerate=rate, blocksize=chunk_size, dtype='float32', device=device) as stream:
             while True:
@@ -478,21 +480,21 @@ if __name__ == "__main__":
         "--method",
         type=str,
         choices=["A", "B"],
-        help="Recording variant A save all samples in one folder. B saves samples to separate folders for each class.",
+        help="Recording method 'A' save all samples in one folder. 'B' saves samples to separate folders for each class.",
     )
     parser.add_argument(
         "--augment",
         action="store_true",
-        help="Flag to indicate if augmentation is required",
+        help="Augment the recorded samples with pitch, stretch, noise, and db changes. You can folder 'ambient' and put there ambient samples to mix with. (flag)",
     )
     parser.add_argument(
         "--num_augmented",
         type=int,
         default=25,
-        help="Number of augmented samples from every original sample",
+        help="Number of augmented samples for every original sample",
     )
     parser.add_argument(
-        "--classes", nargs="+", default=None, help="Specify classes for the recordings."
+        "--classes", nargs="+", required=True, default=None, help="Specify classes for the recordings."
     )
     parser.add_argument(
         "--num_samples", type=int, default=20, help="Number of samples in every class."
@@ -506,27 +508,27 @@ if __name__ == "__main__":
     parser.add_argument(
         "--metadata",
         action="store_true",
-        help="Produce metadata after recording (default is on).",
+        help="Produce metadata after recording. (flag)",
     )
     parser.add_argument(
         "--normalize",
         action="store_true",
-        help="Performs peak-normalization, scales the audio so that its maximum amplitude matches a target level (1.0).",
+        help="Performs peak-normalization, scales the audio so that its maximum amplitude matches a target level (1.0). (flag)",
     )
     parser.add_argument(
         "--trim_pad",
         action="store_true",
-        help="Trim silence parts and pad it back with zeros to ensure consistent length.",
+        help="Trim silence parts and pad it back with zeros to ensure consistent length. (flag)",
     )
     parser.add_argument(
         "--playback",
         action="store_true",
-        help="Flag to indicate playback or specify a file for playback.",
+        help="Flag to indicate playback or specify a file for playback. (flag)",
     )
     parser.add_argument(
         "--no_listening_mode",
         action="store_true",
-        help="Listens for incomming audio and records when there is input. (default is on).",
+        help="Do not use smart recording. (flag).",
     )
     parser.add_argument("-t", "--treshold", type=float, default=0.2, help="Treshold to start recording (default: 0.2).")
     parser.add_argument("-dev", "--device", type=int, default=None, help="Choose a specific device for recording. Lists available devices.")
@@ -539,7 +541,7 @@ if __name__ == "__main__":
     else:
         device_index = find_mic_index(sd)
 
-    recorder = AudioRecorder(;
+    recorder = AudioRecorder(
         classes=args.classes,
         sample_count=args.num_samples,
         duration=args.duration,
