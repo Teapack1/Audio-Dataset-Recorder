@@ -274,7 +274,7 @@ class AudioRecorder:
         sd.wait()
         return recording
     
-    """
+
     def record_auto(self, threshold=0.6, record_seconds=1, channels=1, rate=16000, chunk_size=128, device=0):
         def get_rms(block):
             #return np.sqrt(np.mean(np.square(block)))
@@ -295,11 +295,11 @@ class AudioRecorder:
                         data, _ = stream.read(chunk_size)
                         frames.append(data)
                     return np.concatenate(frames, axis=0)
-    """            
-
+                
+    """
     def record_auto(self, threshold=0.6, record_seconds=1, channels=1, rate=16000, chunk_size=128, overlap_factor=0.5, device=0):
         def get_rms(block):
-            return np.sqrt(np.mean(np.square(block)))
+            return np.max(np.abs(block))
         
         # Calculate the number of samples to overlap
         overlap_samples = int(chunk_size * overlap_factor)
@@ -340,6 +340,8 @@ class AudioRecorder:
 
                         frames.append(buffer.copy())
                     return np.concatenate(frames, axis=0)
+    """         
+
 
 
     def record_audio_variant_A(self, playback=False, no_listening_mode=False):

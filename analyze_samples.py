@@ -73,3 +73,4 @@ if __name__ == "__main__":
     best_mic = max(mic_results, key=lambda mic: mic_results[mic]['loudness'])
     print(f"The best microphone based on the average loudness is: {best_mic}")
 
+
