@@ -14,11 +14,15 @@ def rms_to_dbfs(rms_value):
 def analyze_microphones(base_dir):
     #Analyze the audio samples for each microphone to get average loudness
     mic_results = {}
-    
+    audio_extensions = ('.wav', '.aiff', '.flac', '.mp3')
+
     for dirname, _, filenames in os.walk(base_dir):
+        print(filenames)
         mic_name = os.path.basename(dirname)
         if not filenames:
             continue  # Skip directories without files
+        elif not filenames[0].endswith(audio_extensions):
+            continue  # Skip directories with non-wav files
         loudness = []
         
         for filename in filenames:

@@ -482,6 +482,7 @@ if __name__ == "__main__":
         "--method",
         type=str,
         choices=["A", "B"],
+        default="B",
         help="Recording method 'A' save all samples in one folder. 'B' saves samples to separate folders for each class.",
     )
     parser.add_argument(
@@ -496,7 +497,7 @@ if __name__ == "__main__":
         help="Number of augmented samples for every original sample",
     )
     parser.add_argument(
-        "--classes", nargs="+", required=True, default=None, help="Specify classes for the recordings."
+        "--classes", nargs="+", required=False, default=["audio"], help="Specify classes for the recordings."
     )
     parser.add_argument(
         "--num_samples", type=int, default=20, help="Number of samples in every class."

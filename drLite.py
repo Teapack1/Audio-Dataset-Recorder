@@ -39,7 +39,9 @@ def record_regular(record_seconds=1, channels=1, rate=16000, chunk_size=128, dev
 
 def record_auto( threshold=0.6, record_seconds=1, channels=1, rate=16000, chunk_size=128, device=0):
     def get_rms(block):
-        return np.sqrt(np.mean(np.square(block)))
+            #return np.sqrt(np.mean(np.square(block)))
+        # return peak amplitude
+            return np.max(np.abs(block))
 
     with sd.InputStream(channels=channels, samplerate=rate, blocksize=chunk_size, dtype='float32', device=device) as stream:
         while True:
@@ -125,12 +127,12 @@ if __name__ == "__main__":
     help="Listens for incomming audio and records when there is input. (default is on).",
     )
     parser.add_argument(
-    "--playback",
+    "-p", "--playback",
     action="store_true",
     help="Flag to indicate playback or specify a file for playback.",
     )
     parser.add_argument(
-        "--sample_rate", type=int, default=16000, help="Sampling Rate (16000 default)."
+    "-sr", "--sample_rate", type=int, default=16000, help="Sampling Rate (16000 default)."
     )
 
 

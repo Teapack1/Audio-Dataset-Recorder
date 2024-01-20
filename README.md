@@ -1,9 +1,15 @@
 # Audio Dataset Recording & Augmentation Tools
 
+- <b>dr.py</b>
+Record complete dataset with metadata, directories, augmentation, etc.
+- <b>drLite.py</b>
+Record quickly single or multiple audio samples.
+- <b>analyze_samples.py</b>
+Analyze and compare sample directories based on average RMS intensity.
+
 Dataset recorder, with its primary script `dr.py`, helps to swiftly produce complete audio datasets, especially for machine learning applications. It's complemented by `drLite.py`, a more lightweight script for quick and easy recording of single or multiple audio samples.
 
 Both scripts are user-friendly, saving recordings in .wav format directly to the relative root directory, ensuring easy access and management.
-
 
 
 ## Dataset Recorder
@@ -39,28 +45,28 @@ pip install sounddevice librosa pydub soundfile pandas numpy
 
 ### Usage
 
-1. Record using variant A (all samples in a single folder), no listening mode - samples are recorded one by another, does not listen for input :
+1. Record using variant B (default - samples segregated into class-specific folders) 20 samples of each class, and classes are: "one", "two", "three":
 `
-python audio_dataset_sampler.py --method A --no_listening_mode --num_samples 10 --duration 1 --classes yes no
-`
-
-2. Record using variant B (samples segregated into class-specific folders) 20 samples of each class, and classes are: "one", "two", "three":
-`
-python audio_dataset_sampler.py --method B --sample_count 20 --classes one two three
+python dr.py --num_samples 20 --classes one two three
 `
 
-3. Record variant B with classes yes, no and duration of 1 sec. Gathers 10 samples of each class, produces metadata, trimpads spaces without audio, playbacks every recording, augments every record with 25 samples, amplitude treshold to triger new recording is 0.1.
+2. Record using variant A (all samples in a single folder), no listening mode - samples are recorded after set duration, does not smart record, samples are 2sec long :
 `
-python dr.py --method B --classes yes no --duration 1 --num_samples 10 --metadata --trim_pad --playback --augment --num_augmented 25 --treshold 0.1
+python dr.py --method A --no_listening_mode --num_samples 10 --duration 2 --classes yes no
+`
+
+3. Record variant B with classes "yes", "no" and duration of 1 sec. Gathers 10 samples of each class, produces metadata, trimpads silent ends in the sample, playbacks sample after every recording, augments every record with 25 samples, amplitude treshold to triger new recording is lowered to 0.1, sample rate increased to 48000.
+`
+python dr.py --classes yes no --duration 1 --num_samples 10 --metadata --trim_pad --playback --augment --num_augmented 25 --treshold 0.1 --sample_rate 48000
 `
 
 ### Command Line Arguments
 
-- `--method`: Recording method. `A` saves all samples in one folder while `B` saves samples to separate folders for each class.
+- `--classes`: Specify classes for the recordings, default "audio". (eg.:`--classes one two three`) -> mandatory
+- `--method`: Recording method. `A` saves all samples in one folder while `B` (default) saves samples to separate folders for each class.
 - `--augment`: flag, include to indicate if augmentation is required otherwise samples are not augmented.
 - `--num_augmented`: Number of augmented samples for every original sample.
-- `--classes`: Specify classes for the recordings. (eg.:`--classes one two three`)
-- `--sample_count`: Number of samples in every class.
+- `--num_samples`: Number of samples in every class.
 - `--duration`: Duration of one sample in seconds.
 - `--treshold:` Define amplitude threshold to start recording.
 - `--metadata`: flag, include in command to produce metadata after recording or produce metadata of already recorded samples.
@@ -104,11 +110,10 @@ pip install sounddevice soundfile numpy
    
 ### Usage
 
-1. Record a 1-second audio and save it as sample.wav in the current directory:
+1. Record one 1-second audio and save it as sample.wav in the current directory:
 `
 python drLite.py
 `
-
 2. Record three 10-second audios and save them in a folder named "recordings":
 `
 python drLite.py -f recording -d 10 -dir recordings -n 3
@@ -120,9 +125,9 @@ python drLite.py -f recording -d 10 -dir recordings -n 3
 - `-d` or `--duration`: Duration of recording in seconds (default is 1 second).
 - `-dir` or `--directory`: Directory to save the recordings (default is the current directory).
 - `-n` or `--num_recordings`: Number of recordings to make (default is 1).
-- `-dev` or `--device`: Choose a specific device for recording. Use --list_devices to view available devices.
+- `-t` or `--treshold:` Define the amplitude threshold for starting the recording.
+- `-p` or `--playback:` Flag to indicate playback or specify a file for playback.
+- `-sr` or `--sample_rate:`Sampling Rate (16000 default).
+- `--device`: Choose a specific device for recording. Otherwise default mic is selected. Use --list_devices to view available devices.
 - `--list_devices`: List available recording devices and exit.
-- `--treshold:` Define the amplitude threshold for starting the recording.
 - `--no_listening_mode:` Listens for incomming audio and records when there is input. (default is on).
-- `--playback:` Flag to indicate playback or specify a file for playback.
-- `--sample_rate:`Sampling Rate (16000 default).
