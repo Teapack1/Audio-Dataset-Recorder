@@ -1,8 +1,8 @@
 import os
 import numpy as np
-import librosa
 import matplotlib.pyplot as plt
 import argparse
+import soundfile as sf
 
 
 def get_rms(audio):
@@ -26,7 +26,13 @@ def analyze_microphones(base_dir):
         for filename in filenames:
             if filename.endswith(audio_extensions):
                 file_path = os.path.join(dirname, filename)
-                audio, sr = librosa.load(file_path, sr=None)
+
+                audio, sr = sf.read(file_path)
+
+                # audio_file = wave.open(file_path, "r")
+                # signal = audio_file.readframes(-1)
+                # audio = np.frombuffer(signal, dtype="int16")
+
                 rms_value = get_rms(audio)
 
                 if filename.startswith("noise"):
